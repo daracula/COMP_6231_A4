@@ -3,6 +3,7 @@ from itertools import permutations
 from dotenv import load_dotenv
 from pyspark import RDD, SparkContext
 from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql.functions import col, desc, avg
 
 ### install dependency ###
 # pip install python-dotenv
@@ -112,7 +113,29 @@ def air_flights_most_canceled_flights(flights: DataFrame) -> str:
     :param flights: Spark DataFrame of the flights CSV file.
     :return: The name of the airline with most canceled flights on Jan. 2021.
     """
-    raise NotImplementedError("Your Implementation Here.")
+    # Need cols Airline (2), Cancelled (5), Year (17), Month (19)
+    # Cancelled == True
+    # Year == 2021
+    # Month == 1
+
+    cancelled_jan_2021 = flights.filter(
+        (col("Year") == 2021) &
+        (col("Month") == 1) &
+        (col("Cancelled") == True)
+    )
+
+    # group by airline, count
+    # groupBy returns a GroupedData object, count() returns a DataFrame with 'Airline' and 'count'.
+    airline_counts = cancelled_jan_2021.groupBy("Airline").count()
+
+    # sort by count desc, take top result
+    # first() returns a single Row object (e.g., Row(Airline='Delta', count=50))
+    top_airline = airline_counts.orderBy(desc("count")).first()
+
+    if top_airline:
+        return top_airline["Airline"]
+    else:
+        return "No flights found"
 
 
 def air_flights_diverted_flights(flights: DataFrame) -> int:
@@ -122,8 +145,16 @@ def air_flights_diverted_flights(flights: DataFrame) -> int:
     :param flights: Spark DataFrame of the flights CSV file.
     :return: The number of diverted flights between 1-30 Nov. 2021.
     """
-    raise NotImplementedError("Your Implementation Here.")
-
+    # Need cols Diverted (6), Year (17), Month (19)
+    # Year == 2021
+    # Month == 11
+    # Diverted == True
+    diverted_nov_2021 = flights.filter(
+        (col("Year") == 2021) &
+        (col("Month") == 11) &
+        (col("Diverted") == True)
+    )
+    return diverted_nov_2021.count()
 
 def air_flights_avg_airtime(flights: DataFrame) -> float:
     """
@@ -133,7 +164,17 @@ def air_flights_avg_airtime(flights: DataFrame) -> float:
     :return: The average airtime average airtime of the flights from Los Angeles, CA  to
     New York, NY.
     """
-    raise NotImplementedError("Your Implementation Here.")
+    # Need cols OriginCityName (35), DestCityName (43), Airtime (13)
+    # OriginCityName == "Los Angeles, CA"
+    # DestCityName == "New York, NY"
+    filtered_flights = flights.filter(
+        (col("OriginCityName") == "Los Angeles, CA") &
+        (col("DestCityName") == "New York, NY")
+    )
+
+    # aggregate
+    result = filtered_flights.agg(avg("Airtime")).first()[0]
+    return float(result) if result is not None else 0.0
 
 
 def air_flights_missing_departure_time(flights: DataFrame) -> int:
@@ -143,7 +184,13 @@ def air_flights_missing_departure_time(flights: DataFrame) -> int:
     :param flights: Spark DataFrame of the flights CSV file.
     :return: the number of unique dates where DepTime is missing.
     """
-    raise NotImplementedError("Your Implementation Here.")
+    # Need cols FlightDate (1), DepTime (8)
+    missing_deptime = flights.filter(
+        col("DepTime").isNull()
+    )
+
+    unique_days = missing_deptime.select("FlightDate").distinct().count()
+    return unique_days
 
 
 def main():
@@ -160,7 +207,7 @@ def main():
     for pair, count in sorted_airline_pairs.take(10):
         print(f"{pair}: {count}")
 
-    '''print("########################## Problem 2 ########################")
+    print("########################## Problem 2 ########################")
     # problem 2: PySpark DataFrame operations
     # read the file
     flights = spark.read.csv(airline_csvfile, header=True, inferSchema=True)
@@ -184,7 +231,7 @@ def main():
         "Q4:",
         air_flights_missing_departure_time(flights),
         "unique dates where departure time (DepTime) was not recorded.",
-    )'''
+    )
 
 
 if __name__ == "__main__":
