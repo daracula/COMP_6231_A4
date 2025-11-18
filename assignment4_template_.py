@@ -39,7 +39,6 @@ def co_occurring_airline_pairs_by_origin(flights_data: RDD) -> RDD:
                                 ((Airline_A,Airline_C),2),
                                 ((Airline_B,Airline_C),1)]
     """
-
     # find pairs of airlines with same origin and date
 
     # parse, clean data
@@ -145,16 +144,13 @@ def air_flights_diverted_flights(flights: DataFrame) -> int:
     :param flights: Spark DataFrame of the flights CSV file.
     :return: The number of diverted flights between 1-30 Nov. 2021.
     """
-    # Need cols Diverted (6), Year (17), Month (19)
-    # Year == 2021
-    # Month == 11
-    # Diverted == True
     diverted_nov_2021 = flights.filter(
         (flights.Year == 2021) &
         (flights.Month == 11) &
         (flights.Diverted == True)
     )
     return diverted_nov_2021.count()
+
 
 def air_flights_avg_airtime(flights: DataFrame) -> float:
     """
@@ -164,9 +160,6 @@ def air_flights_avg_airtime(flights: DataFrame) -> float:
     :return: The average airtime average airtime of the flights from Los Angeles, CA  to
     New York, NY.
     """
-    # Need cols OriginCityName (35), DestCityName (43), Airtime (13)
-    # OriginCityName == "Los Angeles, CA"
-    # DestCityName == "New York, NY"
     filtered_flights = flights.filter(
         (flights.OriginCityName == "Los Angeles, CA") &
         (flights.DestCityName == "New York, NY")
@@ -184,10 +177,6 @@ def air_flights_missing_departure_time(flights: DataFrame) -> int:
     :param flights: Spark DataFrame of the flights CSV file.
     :return: the number of unique dates where DepTime is missing.
     """
-    # Need cols FlightDate (1), DepTime (8)
-    # missing_deptime = flights.filter(
-        # col("DepTime").isNull()
-    # )
     missing_deptime = flights.filter(flights.DepTime.isNull())
 
     unique_days = missing_deptime.select("FlightDate").distinct().count()
@@ -215,7 +204,7 @@ def main():
     print(
         "Q1:",
         air_flights_most_canceled_flights(flights),
-        "had the most canceled flights in September 2021.",
+        "had the most canceled flights in January 2021.",
     )
     print(
         "Q2:",
@@ -226,7 +215,7 @@ def main():
         "Q3:",
         air_flights_avg_airtime(flights),
         "is the average airtime for flights that were flying from "
-        "Nashville to Chicago.",
+        "Los Angles to New York.",
     )
     print(
         "Q4:",

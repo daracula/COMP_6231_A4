@@ -70,12 +70,12 @@ if __name__ == "__main__":
     print("--- Pandas Results ---")
 
     # Test Task 1
-    # most_canceled = air_flights_most_canceled_flights(flights_df)
-    # print(f"Most Canceled (Jan 2021): {most_canceled}")
+    most_canceled = air_flights_most_canceled_flights(flights_df)
+    print(f"Most Canceled (Jan 2021): {most_canceled}")
 
     # Test Task 2
-    # diverted_count = diverted_nov_2021(flights_df)
-    # print(f"Diverted (Nov 2021): {diverted_count}")
+    diverted_count = diverted_nov_2021(flights_df)
+    print(f"Diverted (Nov 2021): {diverted_count}")
 
     # Test Task 3
     avg_airtime = avg_airtime_la_to_nyc(flights_df)
